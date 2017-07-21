@@ -1,28 +1,21 @@
+import "./Recto/Recto" for Recto
+
 class SemVer {
 	matcher { _matcher }
-
-	qualifier { _qualifier }
 
 	major { _major }
 	minor { _minor }
 	patch { _patch }
-	tag { _tag }
-	meta { _meta }
 
 	toString { 
 		var acc = ""
 
-		acc = acc + _qualifier || ""
 
-		acc = acc + _major || "X" 
+		acc = acc + "%( _major || "X" )"
 		acc = acc + "."
-		acc = acc + _minor || "Y" 
+		acc = acc + "%( _minor || "Y" )"
 		acc = acc + "."
-		acc = acc + _patch|| "Z" 
-
-		acc = acc + _tag ? "-" + _tag : ""
-
-		acc = acc + _meta ? "+" + _meta : ""
+		acc = acc + "%( _patch|| "Z" )"
 
 		return acc
 	}
@@ -30,35 +23,33 @@ class SemVer {
 	major=(x){ _major = x }
 	minor=(x){ _minor = x }
 	patch=(x){ _patch = x }
-	tag=(x){ _tag = x }
-	meta=(x){ _meta = x }
 
 	construct version(fullString) {
+		var recto = Recto.new()
 
-	}
+		_matcher = false
+		var levels = recto.split(fullString, ".")
 
-	construct version(major, minor, patch) {
+		//sanity check:
+		for( level in levels ){
+			if( ! ( Num.fromString(level) is Num ) ){
+				Fiber.abort("%(level) is not a number")
+			}
+		}
 
-	}
-	
-	construct version(major, minor, patch, tag) {
-
-	}
-
-	construct version(major, minor, patch, tag, meta){
-
+		_major = Num.fromString(levels[0])
+		_minor = Num.fromString(levels[1])
+		_patch = Num.fromString(levels[2])
 	}
 
 	construct matcher(fullString) {
+		var recto = Recto.new()
+		_matcher = true
+		var levels = recto.split(fullString, ".")
 
-	}
-
-	construct matcher(major, minor, patch) {
-
-	}
-
-	valid(fullString){
-
+		_major = Num.fromString(levels[0])
+		_minor = Num.fromString(levels[1])
+		_patch = Num.fromString(levels[2])
 	}
 
 	increment(level){
@@ -73,11 +64,54 @@ class SemVer {
 		}
 	}
 
-	==(other){ false }
+	==(other){ 
+		if( !this.matcher && !other.matcher) {
+			return ( this.major == other.major ) && ( this.minor == other.minor ) && ( this.patch == other.patch )
+		}
+
+		if( !this.matcher && other.matcher ){
+			return other == this
+		}
+
+		if( this.matcher && !other.matcher ){
+			if(this.major && this.major != other.major){
+				return false
+			}
+
+			if(this.minor && this.minor != other.minor){
+				return false
+			}
+
+			if(this.patch && this.patch != other.patch){
+				return false
+			}
+
+			return true
+		}
+
+		if( this.matcher && other.matcher ){
+			if(this.major && other.major && this.major != other.major){
+				return false
+			}
+
+			if(this.minor && other.minor && this.minor != other.minor){
+				return false
+			}
+
+			if(this.patch && other.patch && this.patch != other.patch){
+				return false
+			}
+
+			return true
+		}
+	}
 
 	!=(other){ ! ( this == other ) }
 
-	<(other) { false }
+	<(other) {
+		// this < other
+		return false
+	}
 
 	<=(other) { ! ( other < this ) }
 	>(other) { other < this }
