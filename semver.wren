@@ -10,12 +10,13 @@ class SemVer {
 	toString { 
 		var acc = ""
 
-
 		acc = acc + "%( _major || "X" )"
 		acc = acc + "."
 		acc = acc + "%( _minor || "Y" )"
 		acc = acc + "."
 		acc = acc + "%( _patch|| "Z" )"
+
+		if(this.matcher) acc = "<" + acc + ">"
 
 		return acc
 	}
@@ -109,8 +110,29 @@ class SemVer {
 	!=(other){ ! ( this == other ) }
 
 	<(other) {
-		// this < other
-		return false
+		if(this == other){
+			return false
+		}
+
+		if(this.major && other.major){
+			if(this.major > other.major){
+				return false
+			}
+		}
+
+		if(this.minor && other.minor){
+			if(this.minor > other.minor){
+				return false
+			}
+		}
+
+		if(this.patch && other.patch){
+			if(this.patch >= other.patch){
+				return false
+			}
+		}
+
+		return true
 	}
 
 	<=(other) { ! ( other < this ) }
