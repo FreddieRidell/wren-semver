@@ -1,5 +1,3 @@
-import "./Recto/Recto" for Recto
-
 class SemVer {
 	matcher { _matcher }
 
@@ -26,10 +24,8 @@ class SemVer {
 	patch=(x){ _patch = x }
 
 	construct version(fullString) {
-		var recto = Recto.new()
-
 		_matcher = false
-		var levels = recto.split(fullString, ".")
+		var levels = fullString.split(".")
 
 		//sanity check:
 		for( level in levels ){
@@ -44,9 +40,8 @@ class SemVer {
 	}
 
 	construct matcher(fullString) {
-		var recto = Recto.new()
 		_matcher = true
-		var levels = recto.split(fullString, ".")
+		var levels = fullString.split(".")
 
 		_major = Num.fromString(levels[0])
 		_minor = Num.fromString(levels[1])
